@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 import click
-# from backend_2m.cli.commands import db_tools
-# from backend_2m.settings import get_settings
+
+from univention_db_tools.commands import pg_tools
+
 
 @click.group()
 def manage():
@@ -10,14 +11,9 @@ def manage():
 
 
 def main():
-	# manage.add_command(db_tools)
+	manage.add_command(pg_tools)
 
 	manage()
-	print('ende')
-
-
-	# settings = get_settings()
-	# print(settings)
 
 
 if __name__ == '__main__':
