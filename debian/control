@@ -1,0 +1,32 @@
+Source: univention-db-tools
+Section: univention
+Priority: optional
+Maintainer: Univention GmbH <packages@univention.de>
+Standards-Version: 3.9.8
+Build-Depends:
+ bash-completion,
+ debhelper-compat (= 12),
+ docker.io,
+ dh-python,
+ python3-all,
+ python3-pytest,
+ python3-setuptools,
+ python3-six,
+
+Package: univention-db-tools
+Architecture: all
+Depends:
+ python3,
+ python3-gnupg,
+ python3-apt,
+ ${misc:Depends},
+ ${python3:Depends},
+Recommends:
+ univention-config,
+Description: UCS - database backup/restore tool
+ This package contains tools to make backup and restore of database possible.
+ .
+ This package is part of Univention Corporate Server (UCS),
+ an integrated, directory driven solution for managing
+ corporate environments. For more information about UCS,
+ refer to: https://www.univention.de/

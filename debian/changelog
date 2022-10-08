@@ -1,0 +1,5 @@
+univention-support-info (0.1.0) UNRELEASED; urgency=low
+
+  * Initial package (Keycloak - support installation on Backups)
+
+ -- Nikola Radovanovic <radovanovic.extern@univention.de>  Fri, 07 OCt 2022 09:67:14 +0200
