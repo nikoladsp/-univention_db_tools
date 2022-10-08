@@ -1,33 +1,28 @@
-import subprocess
-import sys
-
 import setuptools
 
 
 def get_version() -> str:
+	import re
 	from os.path import dirname, join
-	import pkg_resources
 
-	pkg_name = 'python-debian'
-	installed = {pkg.key for pkg in pkg_resources.working_set}
-	pkg_missing = pkg_name not in installed
+	topline = re.compile(
+		r'^(\w%(name_chars)s*) \(([^\(\) \t]+)\)'
+		r'((\s+%(name_chars)s+)+)\;'
+		% {'name_chars': '[-+0-9a-z.]'},
+		re.IGNORECASE)
 
-	if pkg_missing:
-		subprocess.check_call([sys.executable, '-m', 'pip', 'install', pkg_name])
-
-	globals()['debian'] = __import__('debian')
-	from debian.changelog import Changelog
+	version = '0.0.0'
 
 	try:
 		changelog_path = join(dirname(__file__), 'debian/changelog')
 		with open(changelog_path, 'r') as fd:
-			changelog = Changelog(fd)
-			version = changelog.version
+			for line in fd.readlines():
+				top_match = topline.match(line.strip())
+				if top_match:
+					version = top_match.group(2)
+					break
 	except FileNotFoundError:
-		version = '0.0.0'
-
-	if pkg_missing:
-		subprocess.check_call([sys.executable, '-m', 'pip', 'uninstall', '-y', pkg_name])
+		pass
 
 	return version
 
