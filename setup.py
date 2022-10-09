@@ -28,4 +28,6 @@ def get_version() -> str:
 
 
 if __name__ == '__main__':
-	setuptools.setup(version=get_version())
+	setuptools.setup(
+		version=get_version(),
+	)
