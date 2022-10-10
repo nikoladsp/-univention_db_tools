@@ -1,3 +1,5 @@
+.. _doc-entry:
+
 univention-db-tools
 ===================
 

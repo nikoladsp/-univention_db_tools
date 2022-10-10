@@ -1,13 +1,14 @@
 # -- Path setup --------------------------------------------------------------
 import os
 import sys
+from datetime import date
 
 sys.path.insert(0, os.path.abspath('../univention_db_tools'))
 sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 project = 'univention-db-tools'
-copyright = '2022, Univention GmbH'
+copyright = '{}, Univention GmbH'.format(date.today().year)
 author = 'Univention GmbH'
 
 # -- General configuration ---------------------------------------------------
@@ -31,3 +32,4 @@ intersphinx_mapping = {
 # -- Options for HTML output -------------------------------------------------
 html_theme = 'alabaster'
 html_static_path = ['static']
+html_title = project
