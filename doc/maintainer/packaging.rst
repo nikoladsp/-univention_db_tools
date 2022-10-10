@@ -1,5 +1,7 @@
-Maintainer's guide
-==================
+.. sectnum::
+
+Packaging
+=========
 
 Prerequisites
 -----------------------------------
@@ -20,6 +22,12 @@ Dependencies for building documentation:
 
   * `graphviz <https://graphviz.org/>`_ - graph visualization software
   * `sphinx <https://www.sphinx-doc.org/en/master/>`_ - documentation generator
+
+
+Package version
+-----------------------------------
+
+In order to get version programmatically from ``debian/changelog`` file, we use :func:`setup.get_version` function.
 
 Building PyPI package
 -----------------------------------
@@ -52,35 +60,3 @@ To build Debian package:
 
    apt-get build-dep .
    dpkg-buildpackage -b -uc -us
-
-Package version
------------------------------------
-
-In order to get version programmatically from ``debian/changelog`` file, we use this function in ``setup.py``:
-
-.. code-block:: python
-
-   def get_version() -> str:
-       import re
-       from os.path import dirname, join
-
-       topline = re.compile(
-           r'^(\w%(name_chars)s*) \(([^\(\) \t]+)\)'
-           r'((\s+%(name_chars)s+)+)\;'
-           % {'name_chars': '[-+0-9a-z.]'},
-           re.IGNORECASE)
-
-       version = '0.0.0'
-
-       try:
-           changelog_path = join(dirname(__file__), 'debian/changelog')
-           with open(changelog_path, 'r') as fd:
-               for line in fd.readlines():
-                   top_match = topline.match(line.strip())
-                   if top_match:
-                       version = top_match.group(2)
-                       break
-       except FileNotFoundError:
-           pass
-
-       return version

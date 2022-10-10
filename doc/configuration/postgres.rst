@@ -1,5 +1,10 @@
-Overview
+.. sectnum::
+
+Postgres
 ========
+
+General considerations
+-----------------------------------
 
 In order to perform actions like backup/restore, we must at first provide access to the service. This means we have to:
 

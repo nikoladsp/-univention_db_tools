@@ -3,6 +3,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath('../univention_db_tools'))
+sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 project = 'univention-db-tools'

@@ -2,6 +2,14 @@ import setuptools
 
 
 def get_version() -> str:
+	"""
+	Read version string from `debian/changelog` file. We are in search
+	for a last changelog entry - which corresponds to the topmost line
+	matching particular regex pattern. In case no such line is found or
+	an error occurs, we return `0.0.0` as a default.
+
+	:return: Version string.
+	"""
 	import re
 	from os.path import dirname, join
 

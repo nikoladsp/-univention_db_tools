@@ -10,15 +10,9 @@ following databases are supported, but others are in the roadmap as well:
    :maxdepth: 1
    :caption: Contents:
 
-   Usage <usage>
-   Maintainer's guide <maintainer>
-
-.. toctree::
-   :caption: Database configuration
-   :maxdepth: 1
-   :hidden:
-
-   Postgres <configuration/postgres>
+   usage/index
+   configuration/index
+   maintainer/index
 
 Indices and tables
 ==================
