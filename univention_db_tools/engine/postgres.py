@@ -13,7 +13,7 @@ class PostgresArchiver(Archiver):
 		with TemporaryDirectory() as dirname:
 			db_config = args.db_config
 			dump_file_path = f'{dirname}/{db_config.name}_{datetime.now(timezone.utc).strftime("%Y_%m_%d")}.dump'
-			cmd = f'pg_dump -d {db_config.name} -h {db_config.host} -p {db_config.port} -U {db_config.username} -W {db_config.password} --format=custom --if-exists --clean --no-owner --no-acl -f {dump_file_path}'
+			cmd = f'PGPASSWORD="{db_config.password}" pg_dump -d {db_config.name} -h {db_config.host} -p {db_config.port} -U {db_config.username} --format=custom --if-exists --clean --no-owner --no-acl -f {dump_file_path}'
 			print(cmd)
 
 	def restore(self, args: RestoreCommandArgs):
