@@ -1,9 +1,12 @@
 from abc import ABC, abstractmethod
 from enum import Enum
 from pathlib import Path
-from typing import Union, List, Set
+from typing import Union, List, Set, Optional, TypeVar
+from os import getlogin
 
 from pydantic import BaseModel
+
+DatabaseType = TypeVar('DatabaseType', bound='Database')
 
 
 class Resolution(str, Enum):
@@ -15,27 +18,38 @@ class Resolution(str, Enum):
 	YEARLY = 'yearly'
 
 
+class DbProvider(str, Enum):
+	POSTGRES = 'pg'
+
+
 class SupportedDb(BaseModel):
-	name: str
-	abbrev: str
+	provider: DbProvider = DbProvider.POSTGRES
 	versions: Set[Union[str, int]]
 
 
 def supported_dbs() -> List[SupportedDb]:
 	return [
-		SupportedDb(name='POSTGRES', abbrev='pg', versions=[9, 10, 11, 12]),
+		SupportedDb(provider=DbProvider.POSTGRES, versions=[10, 11, 12, 13, 14]),
 	]
 
 
 def db_supported(name: str, version: Union[int, str], db_list: List[SupportedDb] = None) -> bool:
 	for db in db_list or supported_dbs():
-		if db.name.lower() == name.lower() and str(version) in set(map(str, db.versions)):
+		prov = db.provider
+		if name.lower() in [prov.name.lower(), prov.value.lower()] and str(version) in set(map(str, db.versions)):
 			return True
 
 	return False
 
 
-class DbConfig(BaseModel, ABC):
+class Host(BaseModel):
+	username: str = getlogin()
+	password: Optional[str] = None
+	address: str = 'localhost'
+	port: int = 22
+
+
+class Database(BaseModel, ABC):
 	name: str
 
 	@abstractmethod
@@ -43,7 +57,7 @@ class DbConfig(BaseModel, ABC):
 		raise NotImplementedError
 
 
-class PostgresDbConfig(DbConfig):
+class PostgresDatabase(Database):
 	username: str
 	password: str
 	host: str = 'localhost'
@@ -53,15 +67,15 @@ class PostgresDbConfig(DbConfig):
 		return f'postgresql://{self.username}:{self.password}@{self.host}:{self.port}/{self.name}'
 
 
-class BackupCommandArgs(BaseModel):
+class CommandArgs(BaseModel):
+	db: Union[PostgresDatabase]
 
+
+class BackupArgs(CommandArgs):
 	storage_path: Union[str, Path]
-	db_config: Union[PostgresDbConfig]
 	resolution: Resolution = Resolution.DAILY
 	force: bool = False
 
 
-class RestoreCommandArgs(BaseModel):
-
+class RestoreArgs(CommandArgs):
 	backup_path: Union[str, Path]
-	db_config: Union[PostgresDbConfig]

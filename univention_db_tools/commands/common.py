@@ -1,18 +1,20 @@
 import click
 
-from univention_db_tools import postgres_default_backup_command_args
+from univention_db_tools import Host
 
-dflt_cmd_cfg = postgres_default_backup_command_args()
-dflt_db_cfg = dflt_cmd_cfg.db_config
+default_host = Host()
 
 
 def postgres_common_command_options(function):
 
     # options and arguments are evaluated in reverse order!
-    function = click.option('-P', '--password', default=dflt_db_cfg.password, show_default=True, help='Database account password')(function)
-    function = click.option('-U', '--username', default=dflt_db_cfg.username, show_default=True, help='Database account username')(function)
-    function = click.option('-p', '--port', default=dflt_db_cfg.port, show_default=True, help='Database port')(function)
-    function = click.option('-h', '--host', default=dflt_db_cfg.host, show_default=True, help='Database host')(function)
-    function = click.option('-n', '--name', default=dflt_db_cfg.name, show_default=True, help='Database name')(function)
+    function = click.option('-P', '--db-password', help='Database account password')(function)
+    function = click.option('-U', '--db-username', help='Database account username')(function)
+    function = click.option('-t', '--db-port', default=5432, show_default=True, help='Database service port')(function)
+    function = click.option('-n', '--name', help='Database name')(function)
+    function = click.option('-p', '--password', default=default_host.password, show_default=True, help='Database host address password')(function)
+    function = click.option('-u', '--username', default=default_host.username, show_default=True, help='Database host address username')(function)
+    function = click.option('-o', '--port', default=default_host.port, show_default=True, help='Database host address port')(function)
+    function = click.option('-a', '--address', default=default_host.address, show_default=True, help='Database host address')(function)
 
     return function

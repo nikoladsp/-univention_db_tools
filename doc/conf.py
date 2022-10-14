@@ -20,6 +20,8 @@ extensions = [
 	'sphinx.ext.autosummary',
 	'sphinx.ext.inheritance_diagram',
 	'sphinx.ext.graphviz',
+	'univention_sphinx_extension',
+	'sphinxcontrib.spelling',
 ]
 
 templates_path = ['templates']

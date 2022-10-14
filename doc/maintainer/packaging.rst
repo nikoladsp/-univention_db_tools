@@ -21,7 +21,9 @@ Dependencies for running tests:
 Dependencies for building documentation:
 
   * `graphviz <https://graphviz.org/>`_ - graph visualization software
-  * `sphinx <https://www.sphinx-doc.org/en/master/>`_ - documentation generator
+  * `sphinx <https://www.sphinx-doc.org/en/master/>`_ 4.5.0 - documentation generator
+  * `univention_sphinx_book_theme <https://git.knut.univention.de/univention/documentation/univention_sphinx_book_theme>`_ 0.0.8
+  * `univention_sphinx_extension <https://git.knut.univention.de/univention/documentation/univention_sphinx_extension>`_ 0.0.12
 
 
 Package version
@@ -60,3 +62,12 @@ To build Debian package:
 
    apt-get build-dep .
    dpkg-buildpackage -b -uc -us
+
+Building documentation
+-----------------------------------
+
+To build documentation in your (virtual) environment:
+
+.. code-block:: bash
+
+   python setup.py build_sphinx
