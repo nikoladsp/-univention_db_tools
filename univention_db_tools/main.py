@@ -2,7 +2,7 @@
 
 import click
 
-from univention_db_tools.commands import pg_tools
+from univention_db_tools.cli import pg_tools
 
 
 @click.group()

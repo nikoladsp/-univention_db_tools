@@ -13,7 +13,7 @@ class Executor(object):
 	def __init__(self, host: Host):
 		self._host = host
 
-	def execute(self, cmd: CommandType) -> str:
+	def execute(self, cmd: CommandType, hide: bool = True) -> str:
 		host_config = self._host
 		address = host_config.address
 		port = host_config.port
@@ -21,10 +21,10 @@ class Executor(object):
 		password = host_config.password
 
 		if address and socket.getfqdn(address) in ['localhost', '0.0.0.0'] and username == getlogin():
-			res = run(cmd.cmd())
+			res = run(cmd.cmd(), hide=hide)
 		else:
 			connect_kwargs = {'password': password} if password else {}
 			with Connection(host=address, user=username, port=port, connect_kwargs=connect_kwargs) as conn:
-				res = conn.run(cmd.cmd())
+				res = conn.run(cmd.cmd(), hide=hide)
 
 		return res.stdout.strip()

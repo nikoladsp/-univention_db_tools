@@ -3,22 +3,35 @@ from datetime import datetime
 from pathlib import Path
 from typing import Union
 
-from .config import Resolution, DbProvider, Host, BackupArgs, RestoreArgs
 from .command_executor import Executor
 from .commands import PostgresVersionCommand, PostgresBackupCommand
+from .config import Resolution, DbProvider, DatabaseType, Host
+
+
+def create_archiver(provider: DbProvider, host: Host):
+	providers = {
+		DbProvider.POSTGRES: PostgresArchiver,
+	}
+
+	provider = providers.get(provider, None)
+
+	if not provider:
+		raise RuntimeError(f'Unsupported provider: {provider}')
+
+	return provider(executor=Executor(host))
 
 
 class Archiver(ABC):
 
-	def __init__(self, host: Host):
-		self._host = host
+	def __init__(self, executor: Executor):
+		self._executor = executor
 
 	@abstractmethod
-	def backup(self, args: BackupArgs):
+	def backup(self, db: DatabaseType, storage_path: str, resolution: Resolution = Resolution.DAILY):
 		raise NotImplementedError
 
 	@abstractmethod
-	def restore(self, args: RestoreArgs):
+	def restore(self, db: DatabaseType, backup_path: str):
 		raise NotImplementedError
 
 	@classmethod
@@ -49,27 +62,23 @@ class Archiver(ABC):
 
 class PostgresArchiver(Archiver):
 
-	def backup(self, args: BackupArgs):
-		self._create_storage_layout(args.storage_path)
+	def backup(self, db: DatabaseType, storage_path: str, resolution: Resolution = Resolution.DAILY):
+		self._create_storage_layout(storage_path)
 
-		db = args.db
-		executor = Executor(self._host)
-
-		backup_path = self._backup_path(executor=executor, args=args)
+		backup_path = self._backup_path(db=db, resolution=resolution)
 		cmd = PostgresBackupCommand(db=db, backup_path=backup_path)
-		executor.execute(cmd=cmd)
+		self._executor.execute(cmd=cmd)
 
-	def restore(self, args: RestoreArgs):
+	def restore(self, db: DatabaseType, backup_path: str):
 		pass
 
-	def _backup_path(self, executor: Executor, args: BackupArgs) -> str:
-		db = args.db
+	def _backup_path(self, db: DatabaseType, resolution: Resolution) -> str:
 		provider = DbProvider.POSTGRES
 
 		cmd = PostgresVersionCommand(db=db)
-		full_version = executor.execute(cmd=cmd)
+		full_version = self._executor.execute(cmd=cmd)
 
 		version = self._major_db_version(full_version)
-		backup_name = self._backup_name(name=db.name, provider=provider, version=version, resolution=args.resolution)
+		backup_name = self._backup_name(name=db.name, provider=provider, version=version, resolution=resolution)
 
 		return f'/tmp/{backup_name}'

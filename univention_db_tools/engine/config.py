@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from pathlib import Path
-from typing import Union, List, Set, Optional, TypeVar
 from os import getlogin
+from typing import Union, List, Set, Optional, TypeVar
 
 from pydantic import BaseModel
 
@@ -65,17 +64,3 @@ class PostgresDatabase(Database):
 
 	def db_uri(self) -> str:
 		return f'postgresql://{self.username}:{self.password}@{self.host}:{self.port}/{self.name}'
-
-
-class CommandArgs(BaseModel):
-	db: Union[PostgresDatabase]
-
-
-class BackupArgs(CommandArgs):
-	storage_path: Union[str, Path]
-	resolution: Resolution = Resolution.DAILY
-	force: bool = False
-
-
-class RestoreArgs(CommandArgs):
-	backup_path: Union[str, Path]
