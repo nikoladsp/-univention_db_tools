@@ -69,6 +69,10 @@ class PostgresArchiver(Archiver):
 		cmd = PostgresBackupCommand(db=db, backup_path=backup_path)
 		self._executor.execute(cmd=cmd)
 
+		backup_name = Path(backup_path).name
+		local_path = str(Path(storage_path).joinpath(resolution.value).joinpath(backup_name))
+		self._executor.download_file(remote_path=backup_path, local_path=local_path)
+
 	def restore(self, db: DatabaseType, backup_path: str):
 		pass
 

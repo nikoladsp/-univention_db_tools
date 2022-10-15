@@ -1,8 +1,6 @@
-import socket
-from os import getlogin
+from contextlib import contextmanager
 
 from fabric import Connection
-from invoke import run
 
 from .commands import CommandType
 from .config import Host
@@ -14,17 +12,23 @@ class Executor(object):
 		self._host = host
 
 	def execute(self, cmd: CommandType, hide: bool = True) -> str:
-		host_config = self._host
-		address = host_config.address
-		port = host_config.port
-		username = host_config.username
-		password = host_config.password
+		with self._connection() as conn:
+			res = conn.run(cmd.cmd(), hide=hide)
 
-		if address and socket.getfqdn(address) in ['localhost', '0.0.0.0'] and username == getlogin():
-			res = run(cmd.cmd(), hide=hide)
-		else:
-			connect_kwargs = {'password': password} if password else {}
-			with Connection(host=address, user=username, port=port, connect_kwargs=connect_kwargs) as conn:
-				res = conn.run(cmd.cmd(), hide=hide)
+			return res.stdout.strip()
 
-		return res.stdout.strip()
+	def download_file(self, remote_path: str, local_path: str):
+		with self._connection() as conn:
+			conn.get(remote_path, local_path)
+
+	@contextmanager
+	def _connection(self) -> Connection:
+		host = self._host
+		address = host.address or 'localhost'
+		port = host.port
+		username = host.username
+		password = host.password
+
+		connect_kwargs = {'password': password} if password else {}
+		with Connection(host=address, user=username, port=port, connect_kwargs=connect_kwargs) as conn:
+			yield conn
