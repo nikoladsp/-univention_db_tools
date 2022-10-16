@@ -27,11 +27,12 @@ def backup(address: str, port: int, username: str, password: str, db_name: str, 
 @pg_tools.command(name='restore', help='Restore given database')
 @postgres_common_options
 @click.option('-b', '--backup-path', type=click.Path(exists=True, dir_okay=False), help='Path to archive from which to restore the database')
-def restore(address: str, port: int, username: str, password: str, db_name: str, db_port: int, db_username: str, db_password: str, backup_path: str):
+@click.option('-m', '--match-version', default=True, show_default=True, help='Strict match of dump and major DB version is needed')
+def restore(address: str, port: int, username: str, password: str, db_name: str, db_port: int, db_username: str, db_password: str, backup_path: str, match_version: bool):
 	from univention_db_tools import DbProvider, PostgresDatabase, create_archiver
 
 	host = Host(address=address, port=port, username=username, password=password)
 	db = PostgresDatabase(name=db_name, port=db_port, username=db_username, password=db_password)
 
 	archiver = create_archiver(provider=DbProvider.POSTGRES, host=host)
-	archiver.restore(db=db, backup_path=backup_path)
+	archiver.restore(db=db, backup_path=backup_path, match_version=match_version)

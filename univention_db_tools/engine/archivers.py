@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
 from typing import Union
-
+import re
 from .command_executor import Executor
 from .commands import PostgresVersionCommand, PostgresBackupCommand, PostgresTerminateConnectionsCommand, \
 	PostgresDropDatabaseCommand, PostgresCreateDatabaseCommand, PostgresRestoreDatabaseCommand
@@ -32,7 +32,7 @@ class Archiver(ABC):
 		raise NotImplementedError
 
 	@abstractmethod
-	def restore(self, db: DatabaseType, backup_path: str):
+	def restore(self, db: DatabaseType, backup_path: str, match_version):
 		raise NotImplementedError
 
 	@classmethod
@@ -74,7 +74,18 @@ class PostgresArchiver(Archiver):
 		local_path = str(Path(storage_path).joinpath(resolution.value).joinpath(backup_name))
 		self._executor.download_file(remote_path=backup_path, local_path=local_path)
 
-	def restore(self, db: DatabaseType, backup_path: str):
+	def restore(self, db: DatabaseType, backup_path: str, match_version: bool):
+		if match_version:
+			cmd = PostgresVersionCommand(db=db)
+			full_version = self._executor.execute(cmd=cmd)
+
+			db_version = self._major_db_version(full_version)
+			backup_name = Path(backup_path).name
+
+			pattern = re.compile(r'_pg_(\d+)')
+			result = pattern.findall(backup_name)
+			if not result or result[0] != db_version:
+				raise RuntimeError(f'Dump/server version mismatch: {backup_path} can not be imported in Postgres {db_version}+,')
 
 		cmd = [
 			PostgresTerminateConnectionsCommand(db=db),
