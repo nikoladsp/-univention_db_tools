@@ -46,3 +46,43 @@ class PostgresBackupCommand(PostgresCommand):
 		command = f'pg_dump -d {db.name} -h {db.host} -p {db.port} -U {db.username} --format=custom --if-exists --clean --no-owner --no-acl -f {self._backup_path}'
 
 		return self._finalize_cmd(command)
+
+
+class PostgresTerminateConnectionsCommand(PostgresCommand):
+
+	def cmd(self) -> str:
+		db: PostgresDatabase = self._db
+		command = f'psql -h {db.host} -U {db.username} -d postgres -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = \'{db.name}\' AND pid <> pg_backend_pid();"'
+
+		return self._finalize_cmd(command)
+
+
+class PostgresDropDatabaseCommand(PostgresCommand):
+
+	def cmd(self) -> str:
+		db: PostgresDatabase = self._db
+		command = f'psql -h {db.host} -U {db.username} -d postgres -c \'DROP DATABASE IF EXISTS "{db.name}";\''
+
+		return self._finalize_cmd(command)
+
+
+class PostgresCreateDatabaseCommand(PostgresCommand):
+
+	def cmd(self) -> str:
+		db: PostgresDatabase = self._db
+		command = f'psql -h {db.host} -U {db.username} -d postgres -c \'CREATE DATABASE {db.name} OWNER {db.username};\''
+
+		return self._finalize_cmd(command)
+
+
+class PostgresRestoreDatabaseCommand(PostgresCommand):
+
+	def __init__(self, db: DatabaseType, backup_path: str = None):
+		super().__init__(db)
+		self._backup_path = backup_path
+
+	def cmd(self) -> str:
+		db: PostgresDatabase = self._db
+		command = f'pg_restore --verbose --clean --no-acl --no-owner -d {db.name} -h {db.host} -p {db.port} -U {db.username} {self._backup_path}'
+
+		return self._finalize_cmd(command)

@@ -7,6 +7,11 @@ from .engine import (
 	create_archiver,
 	PostgresArchiver,
 	Executor,
+	Command,
 	PostgresVersionCommand,
 	PostgresBackupCommand,
+	PostgresTerminateConnectionsCommand,
+	PostgresDropDatabaseCommand,
+	PostgresCreateDatabaseCommand,
+	PostgresRestoreDatabaseCommand,
 )

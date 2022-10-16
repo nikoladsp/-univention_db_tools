@@ -106,8 +106,9 @@ mentioned already)
    sudo service postgresql restart
 
 
-To perform backup, we use (note that we dont have to switch account, can directly be run under say *root* account):
+To perform backup/restore, we use (note that we dont have to switch account, can directly be run under say *root* account):
 
 .. code-block:: bash
 
    PGPASSWORD="univention" pg_dump -d keycloak -h localhost -p 5432 -U backup --format=custom --if-exists --clean --no-owner --no-acl -f /tmp/keycloak.dump
+   PGPASSWORD="univention" pg_restore --verbose --clean --no-acl --no-owner -d keycloak -h localhost -U keycloak /tmp/backuptest/daily/keycloak_pg_14_20221016.dump

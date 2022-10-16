@@ -4,7 +4,8 @@ from pathlib import Path
 from typing import Union
 
 from .command_executor import Executor
-from .commands import PostgresVersionCommand, PostgresBackupCommand
+from .commands import PostgresVersionCommand, PostgresBackupCommand, PostgresTerminateConnectionsCommand, \
+	PostgresDropDatabaseCommand, PostgresCreateDatabaseCommand, PostgresRestoreDatabaseCommand
 from .config import Resolution, DbProvider, DatabaseType, Host
 
 
@@ -74,7 +75,15 @@ class PostgresArchiver(Archiver):
 		self._executor.download_file(remote_path=backup_path, local_path=local_path)
 
 	def restore(self, db: DatabaseType, backup_path: str):
-		pass
+
+		cmd = [
+			PostgresTerminateConnectionsCommand(db=db),
+			PostgresDropDatabaseCommand(db=db),
+			PostgresCreateDatabaseCommand(db=db),
+			PostgresRestoreDatabaseCommand(db=db, backup_path=backup_path)
+		]
+
+		self._executor.execute(cmd=cmd, raise_on_error=False)
 
 	def _backup_path(self, db: DatabaseType, resolution: Resolution) -> str:
 		provider = DbProvider.POSTGRES
